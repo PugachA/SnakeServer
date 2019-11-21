@@ -1,6 +1,6 @@
 using System;
 
-namespace SnakeServer
+namespace SnakeServer.Models
 {
     public class WeatherForecast
     {
