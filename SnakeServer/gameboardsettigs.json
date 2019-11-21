@@ -1,0 +1,7 @@
+{
+  "timeUntilNextTurnMilliseconds": 600,
+  "gameBoardSize": {
+    "width": 20,
+    "heigth": 20
+  }
+}

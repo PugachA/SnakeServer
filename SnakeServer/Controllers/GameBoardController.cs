@@ -16,9 +16,9 @@ namespace SnakeServer.Controllers
     {
         // GET: api/<controller>
         [HttpGet]
-        public GameBoard Get()
+        public GameBoardSettings Get()
         { 
-            return GameBoard.Instance;
+            return GameBoard.Instance.Settings;
         }
 
         [HttpGet("snake")]
