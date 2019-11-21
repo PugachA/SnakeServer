@@ -9,6 +9,8 @@ namespace SnakeServer
     public class Food : IGameBoardItem
     {
         private readonly List<Point> _points;
+        
+        [JsonPropertyName("food")]
         public IEnumerable<Point> Points => _points;
 
         public Food()

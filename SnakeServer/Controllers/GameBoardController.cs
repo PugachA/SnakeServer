@@ -25,13 +25,21 @@ namespace SnakeServer.Controllers
             };
         }
 
-        // GET api/<controller>/5
-        [HttpGet("{id}")]
-        public Snake Get(int id)
+        [HttpGet("snake")]
+        public Snake GetSnake()
         {
             Snake snake = new Snake();
             snake.Add(new Point { X = 0, Y = 0 });
+            snake.Add(new Point { X = 0, Y = 1 });
             return snake;
+        }
+
+        [HttpGet("food")]
+        public Food GetFood()
+        {
+            Food food = new Food();
+            food.Add(new Point { X = 4, Y = 5 });
+            return food;
         }
 
         // POST api/<controller>
