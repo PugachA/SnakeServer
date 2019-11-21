@@ -24,10 +24,5 @@ namespace SnakeServer
         {
             _points.Add(point);
         }
-
-        public void Delete(Point point)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

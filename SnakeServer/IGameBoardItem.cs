@@ -9,7 +9,6 @@ namespace SnakeServer
     {
         IEnumerable<Point> Points { get; }
         public void Add(Point point);
-        public void Delete(Point point);
-        public Point this[int index] { get; set; }
+        public Point this[int index] { get; }
     }
 }
