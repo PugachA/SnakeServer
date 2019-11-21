@@ -1,4 +1,4 @@
-﻿namespace SnakeServer
+﻿namespace SnakeServer.Models
 {
     public class Point
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace SnakeServer
+namespace SnakeServer.Models
 {
     public class Snake : IGameBoardItem
     {
