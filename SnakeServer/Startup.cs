@@ -28,7 +28,8 @@ namespace SnakeServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddHostedService<TimedHostedService>();
+            services.AddSingleton<GameManager>();
+            //services.AddHostedService<TimedHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

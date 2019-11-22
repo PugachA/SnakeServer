@@ -22,16 +22,16 @@ namespace SnakeServer.Services
         {
             _logger.LogInformation("Timed Hosted Service running.");
 
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(GameBoard.Instance.Settings.TimeUntilNextTurnMilliseconds));
+            //_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(GameBoard.Instance.Settings.TimeUntilNextTurnMilliseconds));
 
             return Task.CompletedTask;
         }
 
         private void DoWork(object state)
         {
-            _logger.LogInformation(
-                "Timed Hosted Service is working. TurnNumber: {Count}", ++GameBoard.Instance.Settings.TurnNumber);
-            GameBoard.Instance.Snake.Add(new Point { X = 1, Y = 2 });
+            //_logger.LogInformation(
+            //    "Timed Hosted Service is working. TurnNumber: {Count}", ++GameBoard.Instance.Settings.TurnNumber);
+            //GameBoard.Instance.Snake.Add(new Point { X = 1, Y = 2 });
         }
 
         public Task StopAsync(CancellationToken stoppingToken)

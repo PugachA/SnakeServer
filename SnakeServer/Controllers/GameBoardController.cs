@@ -14,25 +14,31 @@ namespace SnakeServer.Controllers
     [Route("api/[controller]")]
     public class GameBoardController : Controller
     {
+        private readonly GameManager gameManager;
+
+        public GameBoardController(GameManager gameManager)
+        {
+            this.gameManager = gameManager;
+        }
+
         // GET: api/<controller>
         [HttpGet]
-        public GameBoardSettings Get()
-        { 
-            return GameBoard.Instance.Settings;
+        public GameBoard Get()
+        {
+            return gameManager.GameBoard;
         }
 
         [HttpGet("snake")]
         public Snake GetSnake()
         {
-            GameBoard.Instance.Snake.Add(new Point { X = 0, Y = 0 });
-            return GameBoard.Instance.Snake;
+            //gameManager.NextTurn();
+            return gameManager.GetSnake();
         }
 
         [HttpGet("food")]
         public Food GetFood()
         {
-            GameBoard.Instance.Food.Add(new Point { X = 4, Y = 5 });
-            return GameBoard.Instance.Food;
+            return gameManager.GetFood();
         }
 
         // POST api/<controller>

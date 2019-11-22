@@ -6,31 +6,43 @@ using System.Threading.Tasks;
 
 namespace SnakeServer.Models
 {
-    public class Food : IGameBoardItem
+    public class Food
     {
         private readonly List<Point> _points;
-        
+        private readonly Random random;
+
         [JsonPropertyName("food")]
         public IEnumerable<Point> Points => _points;
 
+
         public Food()
         {
-            _points = new List<Point>();
+            this._points = new List<Point>();
+            this.random = new Random();
         }
 
-        public Point this[int index] => _points[index];
-
-        public void Add(Point point)
+        public Food(IEnumerable<Point> points)
         {
-            _points.Add(point);
+            if(points == null)
+                throw new NullReferenceException($"Значение {nameof(points)} должно быть определено");
+
+            this._points = new List<Point>(points);
+            this.random = new Random();
         }
 
-        public void DeleteFirst()
+        public void GenerateFood(IEnumerable<Point> snakePoints, Size boardSize)
         {
-            if (_points.Count > 0)
-                _points.RemoveAt(0);
-            else
-                throw new IndexOutOfRangeException($"Обьект не заполнено данными. Нет возможности удалить элемент");
+            int count = 0;
+            Point newFood = new Point();
+
+            do
+            {
+                newFood = new Point(this.random.Next(0, boardSize.Width - 1), this.random.Next(0, boardSize.Heigth - 1));
+                count++;
+            } while (snakePoints.Contains(newFood) || count > boardSize.Heigth * boardSize.Width);
+
+            _points.Add(newFood);
         }
+
     }
 }
