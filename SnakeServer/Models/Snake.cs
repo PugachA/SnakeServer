@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -14,23 +15,24 @@ namespace SnakeServer.Models
         [JsonPropertyName("snake")]
         public IEnumerable<Point> Points => _points;
 
+        [JsonIgnore]
+        public Point Head { get => _points.Last(); } 
+
         public Snake()
         {
-            _points = new List<Point>();
-            direction = Direction.Top;
+            this._points = new List<Point>();
+            this.direction = Direction.Top;
         }
 
         public Snake(Point point, int length, Direction direction = Direction.Top)
         {
-            if (point == null)
-                throw new NullReferenceException($"Значение {nameof(point)} должно быть определено");
-
             _points = new List<Point>();
 
             for (int i = length - 1; i >= 0; i--)
                 _points.Add(new Point(point.X, point.Y + i));
 
             this.direction = direction;
+ 
         }
 
         public Snake(IEnumerable<Point> points, Direction direction = Direction.Top)

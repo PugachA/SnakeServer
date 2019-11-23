@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 using SnakeServer.Core;
 using SnakeServer.Models;
+using SnakeServer.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,17 +16,20 @@ namespace SnakeServer.Controllers
     [Route("api/[controller]")]
     public class GameBoardController : Controller
     {
-        private readonly GameManager gameManager;
+        private readonly GameManagerService gameManager;
+        private readonly ILogger<GameBoardController> logger;
 
-        public GameBoardController(GameManager gameManager)
+        public GameBoardController(GameManagerService gameManager, ILogger<GameBoardController> logger)
         {
             this.gameManager = gameManager;
+            this.logger = logger;
         }
 
         // GET: api/<controller>
         [HttpGet]
         public GameBoard Get()
         {
+            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GameBoard)}");
             return gameManager.GameBoard;
         }
 
@@ -32,12 +37,14 @@ namespace SnakeServer.Controllers
         public Snake GetSnake()
         {
             //gameManager.NextTurn();
+            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GetSnake())}");
             return gameManager.GetSnake();
         }
 
         [HttpGet("food")]
         public Food GetFood()
         {
+            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GetFood())}");
             return gameManager.GetFood();
         }
 

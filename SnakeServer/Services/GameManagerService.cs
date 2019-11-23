@@ -6,18 +6,18 @@ using System;
 using System.Linq;
 using System.Threading;
 
-namespace SnakeServer
+namespace SnakeServer.Services
 {
-    public class GameManager
+    public class GameManagerService
     {
         public Direction SnakeDirection { get; private set; }
         public GameBoard GameBoard { get; private set; }
         private Snake snake;
         private Food food;
         private Timer timer;
-        private readonly ILogger<GameManager> logger;
+        private readonly ILogger<GameManagerService> logger;
 
-        public GameManager(ILogger<GameManager> logger)
+        public GameManagerService(ILogger<GameManagerService> logger)
         {
             this.logger = logger;
             RestartGame();
@@ -25,17 +25,24 @@ namespace SnakeServer
 
         public void NextTurn(object obj)
         {
-            this.snake.Move(this.SnakeDirection);
-
+            //врезание в борты
             if (
-                this.snake.Points.Last().X == this.GameBoard.GameBoardSize.Width
-                || this.snake.Points.Last().Y == this.GameBoard.GameBoardSize.Heigth
-                || this.snake.Points.Last().Y == -1
-                || this.snake.Points.Last().X == -1
-                || this.food.Points.Contains(this.snake.Points.Last())
+                (this.snake.Head.Y == 0 && this.SnakeDirection == Direction.Top)
+                || (this.snake.Head.X == 0 && this.SnakeDirection == Direction.Left)
+                || (this.snake.Head.Y == this.GameBoard.GameBoardSize.Heigth - 1 && this.SnakeDirection == Direction.Bottom)
+                || (this.snake.Head.X == this.GameBoard.GameBoardSize.Width - 1 && this.SnakeDirection == Direction.Right)
                 )
             {
-                logger.LogInformation("Проигрыш. Перезапускаем игру");
+                logger.LogInformation("Проигрыш. Змейка врезалась в стенки");
+                RestartGame();
+            }
+
+            this.snake.Move(this.SnakeDirection);
+
+            //змейка ест сама себя
+            if (this.snake.Points.Where(p => p != this.snake.Head).Contains(this.snake.Head))
+            {
+                logger.LogInformation("Проигрыш. Змейка съела сама себя");
                 RestartGame();
             }
 
@@ -53,7 +60,7 @@ namespace SnakeServer
 
         private void RestartGame()
         {
-            if(this.timer != null)
+            if (this.timer != null)
                 this.timer.Change(Timeout.Infinite, 0);
 
             IConfiguration appConfiguration = new ConfigurationBuilder().AddJsonFile("gameboardsettigs.json").Build();
