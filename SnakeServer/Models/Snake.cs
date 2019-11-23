@@ -15,7 +15,7 @@ namespace SnakeServer.Models
         public IEnumerable<Point> Points => _points;
 
         [JsonIgnore]
-        public Point Head { get => _points.Last(); } 
+        public Point Head => _points.Last();  
 
         public Snake()
         {
@@ -45,73 +45,45 @@ namespace SnakeServer.Models
 
         public void Move(Direction newDirection)
         {
+            this._points.RemoveAt(0);
+            this._points.Add(GetNextPoint(newDirection));
+            this.direction = newDirection;
+        }
+
+        private Point GetNextPoint(Direction newDirection)
+        {
             switch (newDirection)
             {
                 case Direction.Top:
                     {
                         if (direction != Direction.Bottom)
-                        {
-                            this._points.RemoveAt(0);
-
-                            Point head = _points.Last();
-                            Point newHead = new Point(head.X, head.Y - 1);
-                            this._points.Add(newHead);
-
-                            this.direction = newDirection;
-                        }
+                            return new Point(this.Head.X, this.Head.Y - 1);
                         break;
                     }
                 case Direction.Bottom:
                     {
                         if (direction != Direction.Top)
-                        {
-                            _points.RemoveAt(0);
-
-                            Point head = _points.Last();
-                            Point newHead = new Point(head.X, head.Y + 1);
-                            _points.Add(newHead);
-
-                            direction = newDirection;
-                        }
+                            return new Point(this.Head.X, this.Head.Y + 1);
                         break;
                     }
                 case Direction.Left:
                     {
                         if (direction != Direction.Right)
-                        {
-                            _points.RemoveAt(0);
-
-                            Point head = _points.Last();
-                            Point newHead = new Point(head.X - 1, head.Y);
-                            _points.Add(newHead);
-
-                            direction = newDirection;
-                        }
+                           return new Point(this.Head.X - 1, this.Head.Y);
                         break;
                     }
 
                 case Direction.Right:
                     {
                         if (direction != Direction.Left)
-                        {
-                            _points.RemoveAt(0);
-
-                            Point head = _points.Last();
-                            Point newHead = new Point(head.X + 1, head.Y);
-                            _points.Add(newHead);
-
-                            direction = newDirection;
-                        }
+                            return new Point(this.Head.X + 1, this.Head.Y);
                         break;
                     }
-
+                default:
+                        throw new NotSupportedException($"Данный тип Type({nameof(newDirection)}) = {newDirection} не поддерживается");
             }
 
-        }
-
-        private void GetNextPoint(Direction newDirection)
-        {
-
+            return null;
         }
     }
 }

@@ -9,12 +9,13 @@ namespace SnakeServer.Services
 {
     public class GameManagerService
     {
-        public Direction SnakeDirection { get; private set; }
-        public GameBoard GameBoard { get; private set; }
+        private Direction snakeDirection;
         private Snake snake;
         private Food food;
         private Timer timer;
         private readonly ILogger<GameManagerService> logger;
+
+        public GameBoard GameBoard { get; private set; }
 
         public GameManagerService(ILogger<GameManagerService> logger)
         {
@@ -26,17 +27,17 @@ namespace SnakeServer.Services
         {
             //врезание в борты
             if (
-                (this.snake.Head.Y == 0 && this.SnakeDirection == Direction.Top)
-                || (this.snake.Head.X == 0 && this.SnakeDirection == Direction.Left)
-                || (this.snake.Head.Y == this.GameBoard.GameBoardSize.Heigth - 1 && this.SnakeDirection == Direction.Bottom)
-                || (this.snake.Head.X == this.GameBoard.GameBoardSize.Width - 1 && this.SnakeDirection == Direction.Right)
+                (this.snake.Head.Y == 0 && this.snakeDirection == Direction.Top)
+                || (this.snake.Head.X == 0 && this.snakeDirection == Direction.Left)
+                || (this.snake.Head.Y == this.GameBoard.GameBoardSize.Heigth - 1 && this.snakeDirection == Direction.Bottom)
+                || (this.snake.Head.X == this.GameBoard.GameBoardSize.Width - 1 && this.snakeDirection == Direction.Right)
                 )
             {
                 logger.LogInformation("Проигрыш. Змейка врезалась в стенки");
                 RestartGame();
             }
 
-            this.snake.Move(this.SnakeDirection);
+            this.snake.Move(this.snakeDirection);
 
             //змейка ест сама себя
             if (this.snake.Points.Where(p => p != this.snake.Head).Contains(this.snake.Head))
@@ -45,7 +46,7 @@ namespace SnakeServer.Services
                 RestartGame();
             }
 
-            if (this.food.Points.Contains(this.snake.Points.Last()))
+            if (this.food.Points.First() == this.snake.Head)
             {
                 // происходит поедание яблока
                 this.food.GenerateFood(this.snake.Points, this.GameBoard.GameBoardSize);
@@ -54,7 +55,36 @@ namespace SnakeServer.Services
 
         public void UpdateDirection(Direction newDirection)
         {
-            this.SnakeDirection = newDirection;
+            switch (newDirection)
+            {
+                case Direction.Top:
+                    {
+                        if (this.snakeDirection != Direction.Bottom)
+                            this.snakeDirection = newDirection;
+                        break;
+                    }
+                case Direction.Bottom:
+                    {
+                        if (this.snakeDirection != Direction.Top)
+                            this.snakeDirection = newDirection;
+                        break;
+                    }
+                case Direction.Left:
+                    {
+                        if (this.snakeDirection != Direction.Right)
+                            this.snakeDirection = newDirection;
+                        break;
+                    }
+
+                case Direction.Right:
+                    {
+                        if (this.snakeDirection != Direction.Left)
+                            this.snakeDirection = newDirection;
+                        break;
+                    }
+                default:
+                    throw new NotSupportedException($"Значение '{newDirection}' не поддерживается");
+            }
         }
 
         private void RestartGame()
@@ -72,7 +102,7 @@ namespace SnakeServer.Services
             this.food = new Food();
             this.food.GenerateFood(this.snake.Points, this.GameBoard.GameBoardSize);
 
-            this.SnakeDirection = Direction.Top;
+            this.snakeDirection = Direction.Top;
 
             this.timer = new Timer(NextTurn, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(this.GameBoard.TimeUntilNextTurnMilliseconds));
         }

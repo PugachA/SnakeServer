@@ -8,7 +8,7 @@ using SnakeServer.Services;
 
 namespace SnakeServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     public class GameBoardController : Controller
     {
         private readonly GameManagerService gameManager;
@@ -21,7 +21,7 @@ namespace SnakeServer.Controllers
         }
 
         // GET: api/<controller>
-        [HttpGet]
+        [HttpGet("gameboard")]
         public GameBoard Get()
         {
             this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GameBoard)}");
@@ -31,7 +31,7 @@ namespace SnakeServer.Controllers
         [HttpGet("snake")]
         public Snake GetSnake()
         {
-            //gameManager.NextTurn();
+            //gameManager.UpdateDirection(Direction.Bottom);
             this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GetSnake())}");
             return gameManager.GetSnake();
         }
@@ -44,9 +44,10 @@ namespace SnakeServer.Controllers
         }
 
         // POST api/<controller>
-        [HttpPost]
-        public void Post([FromBody]string value)
+        [HttpPost("direction")]
+        public void Post([FromBody]DirectionObject newDirection)
         {
+            gameManager.UpdateDirection(newDirection.Direction);
         }
 
         // PUT api/<controller>/5
