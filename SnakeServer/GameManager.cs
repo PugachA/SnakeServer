@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SnakeServer.Core;
 using SnakeServer.Models;
 using System;
@@ -13,11 +14,12 @@ namespace SnakeServer
         public GameBoard GameBoard { get; private set; }
         private Snake snake;
         private Food food;
-
         private Timer timer;
+        private readonly ILogger<GameManager> logger;
 
-        public GameManager()
+        public GameManager(ILogger<GameManager> logger)
         {
+            this.logger = logger;
             RestartGame();
         }
 
@@ -32,7 +34,10 @@ namespace SnakeServer
                 || this.snake.Points.Last().X == -1
                 || this.food.Points.Contains(this.snake.Points.Last())
                 )
+            {
+                logger.LogInformation("Проигрыш. Перезапускаем игру");
                 RestartGame();
+            }
 
             if (this.food.Points.Contains(this.snake.Points.Last()))
             {
