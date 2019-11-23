@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
-using SnakeServer.Models;
-
-namespace SnakeServer.Core
+﻿namespace SnakeServer.Models
 {
     public class GameBoard
     {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SnakeServer.Core;
 using SnakeServer.Models;
 using System;
 using System.Linq;
