@@ -32,7 +32,7 @@ namespace SnakeServer.Models
         public void GenerateFood(IEnumerable<Point> snakePoints, Size boardSize)
         {
             int count = 0;
-            Point newFood = new Point();
+            Point newFood;
 
             do
             {
@@ -40,12 +40,15 @@ namespace SnakeServer.Models
                 count++;
             } while (snakePoints.Contains(newFood) || count > boardSize.Heigth * boardSize.Width);
 
+            if (newFood == null)
+                throw new AggregateException("Не удалось сгенерировать новую точку для еды");
+
             _points.Add(newFood);
         }
 
         public void DeleteFood(Point point)
         {
-            if (point is null)
+            if (point == null)
                 throw new NullReferenceException($"Значение '{nameof(point)}' должно быть определено");
 
             _points.Remove(point);

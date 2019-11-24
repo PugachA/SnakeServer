@@ -20,11 +20,17 @@ namespace SnakeServer.Models
 
         public static bool operator ==(Point p1, Point p2)
         {
+            if (p2 is null || p1 is null)
+                return false;
+
             return p1.X == p2.X && p1.Y == p2.Y;
         }
 
         public static bool operator !=(Point p1, Point p2)
         {
+            if (p2 is null || p1 is null)
+                return true;
+
             return p1.X != p2.X || p1.Y != p2.Y;
         }
 
