@@ -1,10 +1,9 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SnakeServer.Models;
 using SnakeServer.Services;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SnakeServer.Controllers
 {
@@ -20,49 +19,80 @@ namespace SnakeServer.Controllers
             this.logger = logger;
         }
 
-        // GET: api/<controller>
+        // GET: api/gameboard
         [HttpGet("gameboard")]
-        public GameBoard Get()
+        [ProducesResponseType(typeof(GameBoard), 200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetGameboard()
         {
-            GameBoard gameBoard = gameManager.GetGameBoard();
-            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameBoard)}");
-            return gameBoard;
+            try
+            {
+                GameBoard gameBoard = gameManager.GetGameBoard();
+                this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameBoard)}");
+                return Ok(gameBoard);
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "Ошибка при обработке запроса");
+                return BadRequest("Внутрення ошибка сервера");
+            }
         }
 
+        // GET: api/snake
         [HttpGet("snake")]
-        public Snake GetSnake()
+        [ProducesResponseType(typeof(Snake), 200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetSnake()
         {
-            //gameManager.UpdateDirection(Direction.Bottom);
-            Snake snake = gameManager.GetSnake();
-            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(snake)}");
-            return snake;
+            try
+            {
+                Snake snake = gameManager.GetSnake();
+                this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(snake)}");
+                return Ok(snake);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ошибка при обработке запроса");
+                return BadRequest("Внутрення ошибка сервера");
+            }
         }
 
+        // GET: api/food
         [HttpGet("food")]
-        public Food GetFood()
+        [ProducesResponseType(typeof(Food), 200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetFood()
         {
-            Food food = gameManager.GetFood();
-            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(food)}");
-            return food;
+            try
+            {
+                Food food = gameManager.GetFood();
+                this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(food)}");
+                return Ok(food);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ошибка при обработке запроса");
+                return BadRequest("Внутрення ошибка сервера");
+            }
         }
 
-        // POST api/<controller>
+        // POST api/direction
         [HttpPost("direction")]
-        public void Post([FromBody]DirectionObject newDirection)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult PostDirection([FromBody]DirectionObject newDirection)
         {
-            gameManager.UpdateDirection(newDirection.Direction);
-        }
-
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            try
+            {
+                logger.LogInformation($"Поступил запрос {JsonSerializer.Serialize(newDirection)}");
+                gameManager.UpdateDirection(newDirection.Direction);
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "Ошибка при обработке запроса");
+                return BadRequest("Внутрення ошибка сервера");
+            }
         }
     }
 }
