@@ -24,23 +24,26 @@ namespace SnakeServer.Controllers
         [HttpGet("gameboard")]
         public GameBoard Get()
         {
-            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GameBoard)}");
-            return gameManager.GameBoard;
+            GameBoard gameBoard = gameManager.GetGameBoard();
+            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameBoard)}");
+            return gameBoard;
         }
 
         [HttpGet("snake")]
         public Snake GetSnake()
         {
             //gameManager.UpdateDirection(Direction.Bottom);
-            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GetSnake())}");
-            return gameManager.GetSnake();
+            Snake snake = gameManager.GetSnake();
+            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(snake)}");
+            return snake;
         }
 
         [HttpGet("food")]
         public Food GetFood()
         {
-            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameManager.GetFood())}");
-            return gameManager.GetFood();
+            Food food = gameManager.GetFood();
+            this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(food)}");
+            return food;
         }
 
         // POST api/<controller>
