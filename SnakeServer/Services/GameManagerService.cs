@@ -44,16 +44,18 @@ namespace SnakeServer.Services
             logger.LogInformation($"Змея: {JsonSerializer.Serialize(this.snake.Points)}");
 
             //змейка ест сама себя
-            if (this.snake.Points.Where(p => p != this.snake.Head).Contains(this.snake.Head))
+            if (this.snake.Points.Where(p => p == this.snake.Head).Count() > 1)
             {
                 logger.LogInformation("Проигрыш. Змейка съела сама себя");
                 RestartGame();
                 return;
             }
 
-            if (this.food.Points.First() == this.snake.Head)
+            if (this.food.Points.Contains(this.snake.Head))
             {
                 // происходит поедание яблока
+                this.snake.Eat();
+                this.food.DeleteFood(this.snake.Head);
                 this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
             }
         }
@@ -64,7 +66,7 @@ namespace SnakeServer.Services
             {
                 case Direction.Top:
                     {
-                        if (this.snake.direction != Direction.Bottom)
+                        if (this.snake.Direction != Direction.Bottom)
                         {
                             this.snakeDirection = newDirection;
                             logger.LogInformation($"Обновлено направление на {newDirection}");
@@ -73,7 +75,7 @@ namespace SnakeServer.Services
                     }
                 case Direction.Bottom:
                     {
-                        if (this.snake.direction != Direction.Top)
+                        if (this.snake.Direction != Direction.Top)
                         {
                             this.snakeDirection = newDirection;
                             logger.LogInformation($"Обновлено направление на {newDirection}");
@@ -82,7 +84,7 @@ namespace SnakeServer.Services
                     }
                 case Direction.Left:
                     {
-                        if (this.snake.direction != Direction.Right)
+                        if (this.snake.Direction != Direction.Right)
                         {
                             this.snakeDirection = newDirection;
                             logger.LogInformation($"Обновлено направление на {newDirection}");
@@ -92,7 +94,7 @@ namespace SnakeServer.Services
 
                 case Direction.Right:
                     {
-                        if (this.snake.direction != Direction.Left)
+                        if (this.snake.Direction != Direction.Left)
                         {
                             this.snakeDirection = newDirection;
                             logger.LogInformation($"Обновлено направление на {newDirection}");
@@ -141,6 +143,5 @@ namespace SnakeServer.Services
         {
             return new GameBoard(this.gameBoard.TurnNumber, this.gameBoard.TimeUntilNextTurnMilliseconds, this.gameBoard.GameBoardSize);
         }
-
     }
 }

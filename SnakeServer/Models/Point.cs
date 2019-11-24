@@ -1,4 +1,6 @@
-﻿namespace SnakeServer.Models
+﻿using System;
+
+namespace SnakeServer.Models
 {
     public class Point
     {
@@ -24,6 +26,18 @@
         public static bool operator !=(Point p1, Point p2)
         {
             return p1.X != p2.X || p1.Y != p2.Y;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Point point &&
+                   X == point.X &&
+                   Y == point.Y;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y);
         }
     }
 }

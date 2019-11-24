@@ -11,4 +11,11 @@ namespace SnakeServer.Models
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Direction Direction { get; set; }
     }
+    public enum Direction
+    {
+        Top,
+        Bottom,
+        Left,
+        Right
+    }
 }

@@ -43,5 +43,12 @@ namespace SnakeServer.Models
             _points.Add(newFood);
         }
 
+        public void DeleteFood(Point point)
+        {
+            if (point is null)
+                throw new NullReferenceException($"Значение '{nameof(point)}' должно быть определено");
+
+            _points.Remove(point);
+        }
     }
 }
