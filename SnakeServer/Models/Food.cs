@@ -13,7 +13,6 @@ namespace SnakeServer.Models
         [JsonPropertyName("food")]
         public IEnumerable<Point> Points => _points;
 
-
         public Food()
         {
             this._points = new List<Point>();
@@ -23,7 +22,7 @@ namespace SnakeServer.Models
         public Food(IEnumerable<Point> points)
         {
             if(points == null)
-                throw new NullReferenceException($"Значение {nameof(points)} должно быть определено");
+                throw new NullReferenceException($"Значение '{nameof(points)}' должно быть определено");
 
             this._points = new List<Point>(points);
             this.random = new Random();

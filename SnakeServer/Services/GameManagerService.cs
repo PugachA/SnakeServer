@@ -25,38 +25,44 @@ namespace SnakeServer.Services
 
         public void NextTurn(object obj)
         {
-            //врезание в борты
-            if (
-                (this.snake.Head.Y == 0 && this.snakeDirection == Direction.Top)
-                || (this.snake.Head.X == 0 && this.snakeDirection == Direction.Left)
-                || (this.snake.Head.Y == this.gameBoard.GameBoardSize.Heigth - 1 && this.snakeDirection == Direction.Bottom)
-                || (this.snake.Head.X == this.gameBoard.GameBoardSize.Width - 1 && this.snakeDirection == Direction.Right)
-                )
+            try
             {
-                logger.LogInformation("Проигрыш. Змейка врезалась в стенки");
-                RestartGame();
-                return;
+                //врезание в борты
+                if (
+                    (this.snake.Head.Y == 0 && this.snakeDirection == Direction.Top)
+                    || (this.snake.Head.X == 0 && this.snakeDirection == Direction.Left)
+                    || (this.snake.Head.Y == this.gameBoard.GameBoardSize.Heigth - 1 && this.snakeDirection == Direction.Bottom)
+                    || (this.snake.Head.X == this.gameBoard.GameBoardSize.Width - 1 && this.snakeDirection == Direction.Right)
+                    )
+                {
+                    logger.LogInformation("Проигрыш. Змейка врезалась в стенки");
+                    RestartGame();
+                    return;
+                }
+
+                this.snake.Move(this.snakeDirection);
+                this.gameBoard.TurnNumber++;
+
+                //змейка ест сама себя
+                if (this.snake.Points.Where(p => p == this.snake.Head).Count() > 1)
+                {
+                    logger.LogInformation("Проигрыш. Змейка съела сама себя");
+                    RestartGame();
+                    return;
+                }
+
+                if (this.food.Points.Contains(this.snake.Head))
+                {
+                    // происходит поедание яблока
+                    logger.LogInformation($"Змейка сьела {JsonSerializer.Serialize(this.snake.Head)}");
+                    this.snake.Eat();
+                    this.food.DeleteFood(this.snake.Head);
+                    this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
+                }
             }
-
-            this.snake.Move(this.snakeDirection);
-            this.gameBoard.TurnNumber++;
-
-            logger.LogInformation($"Змея: {JsonSerializer.Serialize(this.snake.Points)}");
-
-            //змейка ест сама себя
-            if (this.snake.Points.Where(p => p == this.snake.Head).Count() > 1)
+            catch(Exception ex)
             {
-                logger.LogInformation("Проигрыш. Змейка съела сама себя");
-                RestartGame();
-                return;
-            }
-
-            if (this.food.Points.Contains(this.snake.Head))
-            {
-                // происходит поедание яблока
-                this.snake.Eat();
-                this.food.DeleteFood(this.snake.Head);
-                this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
+                logger.LogError(ex, "Ошибка при выполнении шага в игре");
             }
         }
 
@@ -102,32 +108,42 @@ namespace SnakeServer.Services
                         break;
                     }
                 default:
-                    throw new NotSupportedException($"Значение '{newDirection}' не поддерживается");
+                    {
+                        logger.LogError($"Значение '{newDirection}' не поддерживается");
+                        break;
+                    }
             }
         }
 
         private void RestartGame()
         {
-            if (this.timer != null)
-                this.timer.Change(Timeout.Infinite, 0);
+            try
+            {
+                if (this.timer != null)
+                    this.timer.Change(Timeout.Infinite, 0);
 
-            IConfiguration appConfiguration = new ConfigurationBuilder().AddJsonFile("gameboardsettigs.json").Build();
-            this.gameBoard = new GameBoard();
-            appConfiguration.Bind(this.gameBoard);
+                IConfiguration appConfiguration = new ConfigurationBuilder().AddJsonFile("gameboardsettigs.json").Build();
+                this.gameBoard = new GameBoard();
+                appConfiguration.Bind(this.gameBoard);
 
-            Point middlePoint = new Point(this.gameBoard.GameBoardSize.Width / 2, this.gameBoard.GameBoardSize.Heigth / 2);
-            this.snake = new Snake(middlePoint, 2);
+                Point middlePoint = new Point(this.gameBoard.GameBoardSize.Width / 2, this.gameBoard.GameBoardSize.Heigth / 2);
+                this.snake = new Snake(middlePoint, 2);
 
-            this.food = new Food();
-            this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
+                this.food = new Food();
+                this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
 
-            this.snakeDirection = Direction.Top;
+                this.snakeDirection = Direction.Top;
 
-            this.timer = new Timer(
-                NextTurn,
-                null,
-                TimeSpan.FromMilliseconds(this.gameBoard.TimeUntilNextTurnMilliseconds),
-                TimeSpan.FromMilliseconds(this.gameBoard.TimeUntilNextTurnMilliseconds));
+                this.timer = new Timer(
+                    NextTurn,
+                    null,
+                    TimeSpan.FromMilliseconds(this.gameBoard.TimeUntilNextTurnMilliseconds),
+                    TimeSpan.FromMilliseconds(this.gameBoard.TimeUntilNextTurnMilliseconds));
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "Ошибка при перезагрузке игры");
+            }
         }
 
         public Snake GetSnake()

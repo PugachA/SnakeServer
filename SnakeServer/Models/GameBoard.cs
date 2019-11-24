@@ -15,7 +15,7 @@ namespace SnakeServer.Models
             TimeUntilNextTurnMilliseconds = timeUntilNextTurnMilliseconds;
 
             if (gameBoardSize is null)
-                throw new NullReferenceException($"Значение {nameof(gameBoardSize)} должно быть определено");
+                throw new NullReferenceException($"Значение '{nameof(gameBoardSize)}' должно быть определено");
 
             GameBoardSize = gameBoardSize;
         }
