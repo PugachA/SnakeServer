@@ -127,7 +127,7 @@ namespace SnakeServer.Services
                 appConfiguration.Bind(this.gameBoard);
 
                 Point middlePoint = new Point(this.gameBoard.GameBoardSize.Width / 2, this.gameBoard.GameBoardSize.Heigth / 2);
-                this.snake = new Snake(middlePoint, 2);
+                this.snake = new Snake(middlePoint, this.gameBoard.InitialSnakeLength);
 
                 this.food = new Food();
                 this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);

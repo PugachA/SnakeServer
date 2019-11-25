@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace SnakeServer.Models
 {
@@ -7,21 +8,25 @@ namespace SnakeServer.Models
         public GameBoard()
         {
             this.GameBoardSize = new Size();
+            this.InitialSnakeLength = 2;
         }
 
-        public GameBoard(int turnNumber, int timeUntilNextTurnMilliseconds, Size gameBoardSize)
+        public GameBoard(int turnNumber, int timeUntilNextTurnMilliseconds, Size gameBoardSize, int initialSnakeLength = 2)
         {
-            TurnNumber = turnNumber;
-            TimeUntilNextTurnMilliseconds = timeUntilNextTurnMilliseconds;
+            this.TurnNumber = turnNumber;
+            this.TimeUntilNextTurnMilliseconds = timeUntilNextTurnMilliseconds;
+            this.InitialSnakeLength = initialSnakeLength;
 
             if (gameBoardSize is null)
                 throw new NullReferenceException($"Значение '{nameof(gameBoardSize)}' должно быть определено");
 
-            GameBoardSize = gameBoardSize;
+            this.GameBoardSize = gameBoardSize;
         }
 
         public int TurnNumber { get; set; }
         public int TimeUntilNextTurnMilliseconds { get; set; }
+        [JsonIgnore]
+        public int InitialSnakeLength { get; set; }
         public Size GameBoardSize { get; set; }
     }
 }
