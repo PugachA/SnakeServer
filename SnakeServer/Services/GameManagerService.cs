@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SnakeServer.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -10,7 +11,7 @@ namespace SnakeServer.Services
 {
     public class GameManagerService
     {
-        private Direction snakeDirection;
+        private Queue<Direction> snakeDirectionQueue;
         private Snake snake;
         private Food food;
         private Timer timer;
@@ -27,21 +28,25 @@ namespace SnakeServer.Services
         {
             try
             {
+                if (this.snakeDirectionQueue.Any())
+                    this.snake.Move(this.snakeDirectionQueue.Dequeue());
+                else
+                    this.snake.Move(this.snake.Direction);
+
+                this.gameBoard.TurnNumber++;
+
                 //врезание в борты
                 if (
-                    (this.snake.Head.Y == 0 && this.snakeDirection == Direction.Top)
-                    || (this.snake.Head.X == 0 && this.snakeDirection == Direction.Left)
-                    || (this.snake.Head.Y == this.gameBoard.GameBoardSize.Heigth - 1 && this.snakeDirection == Direction.Bottom)
-                    || (this.snake.Head.X == this.gameBoard.GameBoardSize.Width - 1 && this.snakeDirection == Direction.Right)
+                    (this.snake.Head.Y == -1)
+                    || (this.snake.Head.X == -1)
+                    || (this.snake.Head.Y == this.gameBoard.GameBoardSize.Heigth)
+                    || (this.snake.Head.X == this.gameBoard.GameBoardSize.Width)
                     )
                 {
                     logger.LogInformation("Проигрыш. Змейка врезалась в стенки");
                     RestartGame();
                     return;
                 }
-
-                this.snake.Move(this.snakeDirection);
-                this.gameBoard.TurnNumber++;
 
                 //змейка ест сама себя
                 if (this.snake.Points.Where(p => p == this.snake.Head).Count() > 1)
@@ -60,7 +65,7 @@ namespace SnakeServer.Services
                     this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Ошибка при выполнении шага в игре");
             }
@@ -68,41 +73,26 @@ namespace SnakeServer.Services
 
         public void UpdateDirection(Direction newDirection)
         {
+            Direction lastDirection = this.snakeDirectionQueue.Any() ? this.snakeDirectionQueue.Last() : this.snake.Direction;
+
             switch (newDirection)
             {
                 case Direction.Top:
-                    {
-                        if (this.snake.Direction != Direction.Bottom)
-                        {
-                            this.snakeDirection = newDirection;
-                            logger.LogInformation($"Обновлено направление на {newDirection}");
-                        }
-                        break;
-                    }
                 case Direction.Bottom:
                     {
-                        if (this.snake.Direction != Direction.Top)
-                        {
-                            this.snakeDirection = newDirection;
-                            logger.LogInformation($"Обновлено направление на {newDirection}");
-                        }
-                        break;
+                            if (lastDirection == Direction.Right || lastDirection == Direction.Left)
+                            {
+                                this.snakeDirectionQueue.Enqueue(newDirection);
+                                logger.LogInformation($"Обновлено направление на {newDirection}");
+                            }
+                            break;
                     }
                 case Direction.Left:
-                    {
-                        if (this.snake.Direction != Direction.Right)
-                        {
-                            this.snakeDirection = newDirection;
-                            logger.LogInformation($"Обновлено направление на {newDirection}");
-                        }
-                        break;
-                    }
-
                 case Direction.Right:
                     {
-                        if (this.snake.Direction != Direction.Left)
+                        if (lastDirection == Direction.Top || lastDirection == Direction.Bottom)
                         {
-                            this.snakeDirection = newDirection;
+                            this.snakeDirectionQueue.Enqueue(newDirection);
                             logger.LogInformation($"Обновлено направление на {newDirection}");
                         }
                         break;
@@ -132,7 +122,8 @@ namespace SnakeServer.Services
                 this.food = new Food();
                 this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
 
-                this.snakeDirection = Direction.Top;
+                this.snakeDirectionQueue = new Queue<Direction>();
+                this.snakeDirectionQueue.Enqueue(Direction.Top);
 
                 this.timer = new Timer(
                     NextTurn,
@@ -140,7 +131,7 @@ namespace SnakeServer.Services
                     TimeSpan.FromMilliseconds(this.gameBoard.TimeUntilNextTurnMilliseconds),
                     TimeSpan.FromMilliseconds(this.gameBoard.TimeUntilNextTurnMilliseconds));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Ошибка при перезагрузке игры");
             }
