@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace SnakeServer.Models
+namespace SnakeServer.Core.Models
 {
     public class GameBoard
     {

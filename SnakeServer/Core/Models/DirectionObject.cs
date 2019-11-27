@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace SnakeServer.Models
+namespace SnakeServer.Core.Models
 {
     /// <summary>
     /// Класс для сериализации POST запроса с изменением направления движения

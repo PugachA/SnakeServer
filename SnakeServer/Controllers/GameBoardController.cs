@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SnakeServer.Models;
+using SnakeServer.Core.Models;
 using SnakeServer.Services;
 
 namespace SnakeServer.Controllers
@@ -27,13 +27,13 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                GameBoard gameBoard = gameManager.GetGameBoard();
+                GameBoard gameBoard = this.gameManager.GetGameBoard();
                 this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameBoard)}");
                 return Ok(gameBoard);
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Ошибка при обработке запроса");
+                this.logger.LogError(ex, "Ошибка при обработке запроса");
                 return BadRequest("Внутрення ошибка сервера");
             }
         }
@@ -46,13 +46,13 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                Snake snake = gameManager.GetSnake();
+                Snake snake = this.gameManager.GetSnake();
                 this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(snake)}");
                 return Ok(snake);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Ошибка при обработке запроса");
+                this.logger.LogError(ex, "Ошибка при обработке запроса");
                 return BadRequest("Внутрення ошибка сервера");
             }
         }
@@ -65,13 +65,13 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                Food food = gameManager.GetFood();
+                Food food = this.gameManager.GetFood();
                 this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(food)}");
                 return Ok(food);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Ошибка при обработке запроса");
+                this.logger.LogError(ex, "Ошибка при обработке запроса");
                 return BadRequest("Внутрення ошибка сервера");
             }
         }
@@ -84,13 +84,13 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                logger.LogInformation($"Поступил запрос {JsonSerializer.Serialize(newDirection)}");
-                gameManager.UpdateDirection(newDirection.Direction);
+                this.logger.LogInformation($"Поступил запрос {JsonSerializer.Serialize(newDirection)}");
+                this.gameManager.UpdateDirection(newDirection.Direction);
                 return Ok();
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Ошибка при обработке запроса");
+                this.logger.LogError(ex, "Ошибка при обработке запроса");
                 return BadRequest("Внутрення ошибка сервера");
             }
         }

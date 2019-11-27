@@ -1,5 +1,5 @@
 ﻿
-namespace SnakeServer.Models
+namespace SnakeServer.Core.Models
 {
     public class Size
     {

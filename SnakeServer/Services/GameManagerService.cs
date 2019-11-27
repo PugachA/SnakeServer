@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SnakeServer.Models;
+using SnakeServer.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,7 +146,7 @@ namespace SnakeServer.Services
                 this.snakeDirectionQueue = new Queue<Direction>();
                 this.snakeDirectionQueue.Enqueue(Direction.Top);
 
-                //запуск таймера для совершения шага в игре
+                //запуск таймера для совершения шагов в игре
                 this.timer = new Timer(
                     NextTurn,
                     null,
