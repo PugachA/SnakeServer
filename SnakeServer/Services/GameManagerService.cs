@@ -11,12 +11,15 @@ namespace SnakeServer.Services
 {
     public class GameManagerService
     {
+        /// <summary>
+        /// Очередь направлений
+        /// </summary>
         private Queue<Direction> snakeDirectionQueue;
         private Snake snake;
         private Food food;
         private Timer timer;
-        private readonly ILogger<GameManagerService> logger;
         private GameBoard gameBoard;
+        private readonly ILogger<GameManagerService> logger;
 
         public GameManagerService(ILogger<GameManagerService> logger)
         {
@@ -24,10 +27,15 @@ namespace SnakeServer.Services
             RestartGame();
         }
 
-        public void NextTurn(object obj)
+        /// <summary>
+        /// Совершение шага в игре
+        /// </summary>
+        /// <param name="obj"></param>
+        private void NextTurn(object obj)
         {
             try
             {
+                //Если очередь пустая, двигайся в старом направлении
                 if (this.snakeDirectionQueue.Any())
                     this.snake.Move(this.snakeDirectionQueue.Dequeue());
                 else
@@ -35,11 +43,11 @@ namespace SnakeServer.Services
 
                 this.gameBoard.TurnNumber++;
 
-                //врезание в борты
+                //Попадание в стенки
                 if (
                     (this.snake.Head.Y == -1)
                     || (this.snake.Head.X == -1)
-                    || (this.snake.Head.Y == this.gameBoard.GameBoardSize.Heigth)
+                    || (this.snake.Head.Y == this.gameBoard.GameBoardSize.Height)
                     || (this.snake.Head.X == this.gameBoard.GameBoardSize.Width)
                     )
                 {
@@ -48,7 +56,7 @@ namespace SnakeServer.Services
                     return;
                 }
 
-                //змейка ест сама себя
+                //Змейка съела сама себя
                 if (this.snake.Points.Where(p => p == this.snake.Head).Count() > 1)
                 {
                     logger.LogInformation("Проигрыш. Змейка съела сама себя");
@@ -56,9 +64,9 @@ namespace SnakeServer.Services
                     return;
                 }
 
+                //Змейка ест вкусняшку
                 if (this.food.Points.Contains(this.snake.Head))
                 {
-                    // происходит поедание яблока
                     logger.LogInformation($"Змейка сьела {JsonSerializer.Serialize(this.snake.Head)}");
                     this.snake.Eat();
                     this.food.DeleteFood(this.snake.Head);
@@ -71,8 +79,13 @@ namespace SnakeServer.Services
             }
         }
 
+        /// <summary>
+        /// Добавление в очередь нового направления
+        /// </summary>
+        /// <param name="newDirection"></param>
         public void UpdateDirection(Direction newDirection)
         {
+            //Последнее направление
             Direction lastDirection = this.snakeDirectionQueue.Any() ? this.snakeDirectionQueue.Last() : this.snake.Direction;
 
             switch (newDirection)
@@ -104,27 +117,36 @@ namespace SnakeServer.Services
                     }
             }
         }
-
+        
+        /// <summary>
+        /// Перезагрузка игры
+        /// </summary>
         private void RestartGame()
         {
             try
             {
+                //Остановка таймера
                 if (this.timer != null)
                     this.timer.Change(Timeout.Infinite, 0);
-
+                
+                //Вытягивание настроек из конфига
                 IConfiguration appConfiguration = new ConfigurationBuilder().AddJsonFile("gameboardsettigs.json").Build();
                 this.gameBoard = new GameBoard();
                 appConfiguration.Bind(this.gameBoard);
 
-                Point middlePoint = new Point(this.gameBoard.GameBoardSize.Width / 2, this.gameBoard.GameBoardSize.Heigth / 2);
+                //Добавление змейки в центр поля
+                Point middlePoint = new Point(this.gameBoard.GameBoardSize.Width / 2, this.gameBoard.GameBoardSize.Height / 2);
                 this.snake = new Snake(middlePoint, this.gameBoard.InitialSnakeLength);
 
+                //Добавление еды на поле
                 this.food = new Food();
                 this.food.GenerateFood(this.snake.Points, this.gameBoard.GameBoardSize);
 
+                //Задание начального направления
                 this.snakeDirectionQueue = new Queue<Direction>();
                 this.snakeDirectionQueue.Enqueue(Direction.Top);
 
+                //запуск таймера для совершения шага в игре
                 this.timer = new Timer(
                     NextTurn,
                     null,
@@ -137,15 +159,28 @@ namespace SnakeServer.Services
             }
         }
 
+        /// <summary>
+        /// Получение состояния змейки
+        /// </summary>
+        /// <returns></returns>
         public Snake GetSnake()
         {
             return new Snake(this.snake.Points);
         }
+
+        /// <summary>
+        /// Получение точек еды на поле
+        /// </summary>
+        /// <returns></returns>
         public Food GetFood()
         {
             return new Food(this.food.Points);
         }
 
+        /// <summary>
+        /// Получение настроек игрового поля
+        /// </summary>
+        /// <returns></returns>
         public GameBoard GetGameBoard()
         {
             return new GameBoard(this.gameBoard.TurnNumber, this.gameBoard.TimeUntilNextTurnMilliseconds, this.gameBoard.GameBoardSize);

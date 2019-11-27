@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace SnakeServer.Models
 {
     public class Point
     {
+        [JsonPropertyName("x")]
         public int X { get; set; }
 
+        [JsonPropertyName("y")]
         public int Y { get; set; }
 
         public Point()

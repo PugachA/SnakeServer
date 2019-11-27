@@ -7,15 +7,31 @@ namespace SnakeServer.Models
 {
     public class Snake
     {
+        /// <summary>
+        /// Точки из которых состоит змейка
+        /// </summary>
         private readonly List<Point> _points;
+
+        /// <summary>
+        /// Последняя удаленная точка
+        /// </summary>
         private Point lastDeletedPoint;
 
+        /// <summary>
+        /// Текущее направление змейки
+        /// </summary>
         [JsonIgnore]
         public Direction Direction { get; private set; }
 
+        /// <summary>
+        /// Свойство для инкапсуляции точек змейки
+        /// </summary>
         [JsonPropertyName("snake")]
         public IEnumerable<Point> Points => _points;
 
+        /// <summary>
+        /// Точка соответствующая голове змейки
+        /// </summary>
         [JsonIgnore]
         public Point Head => _points.Last();
 
@@ -44,15 +60,26 @@ namespace SnakeServer.Models
             this.Direction = direction;
         }
 
+        /// <summary>
+        /// Совершение шага змейкой
+        /// </summary>
+        /// <param name="newDirection">Новое направление движения</param>
         public void Move(Direction newDirection)
         {
+            //Сохраняем удаляемую точку
             this.lastDeletedPoint = _points.First();
             this._points.Remove(this.lastDeletedPoint);
 
+            //Добавление новой точки к голове
             this._points.Add(GetNextPoint(newDirection));
             this.Direction = newDirection;
         }
 
+        /// <summary>
+        /// Генерация следующей точки змейки в зависимости от направления
+        /// </summary>
+        /// <param name="newDirection"></param>
+        /// <returns></returns>
         private Point GetNextPoint(Direction newDirection)
         {
             switch (newDirection)
@@ -62,7 +89,7 @@ namespace SnakeServer.Models
                         if (this.Direction != Direction.Bottom)
                             return new Point(this.Head.X, this.Head.Y - 1);
                         else
-                            return new Point(this.Head.X, this.Head.Y + 1);
+                            return new Point(this.Head.X, this.Head.Y + 1); //оставляем старое направление
                     }
                 case Direction.Bottom:
                     {
@@ -91,8 +118,12 @@ namespace SnakeServer.Models
             }
         }
 
+        /// <summary>
+        /// Поедание змейкой еды
+        /// </summary>
         public void Eat()
         {
+            //Добавляем последнюю удаленную точку к хвосту змейки
             this._points.Insert(0, this.lastDeletedPoint);
         }
     }

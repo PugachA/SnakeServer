@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+<body>
+    <h3>Snake</h3>
+    <canvas id="game" width="500" height="500"></canvas>
+</body>
+</html>
+
+<style>
+    canvas {
+        display: block;
+        margin: 10px auto;
+        border: 1px solid #000000;
+    }
+</style>
+
+<script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const rectSize = 25;
+    var snakeObj;
+    var foodPoint;
+    //var timeUntilNextTurnMilliseconds;
+
+    // Отрисовка игрового поля
+    function DrawGameBoard() {
+        $.ajax({
+            url: '/api/gameboard',
+            type: 'GET',
+            contentType: "application/json",
+            success: function (gameBoard) {
+                canvas.width = gameBoard.gameBoardSize.width * rectSize;
+                canvas.height = gameBoard.gameBoardSize.height * rectSize;
+
+                //timeUntilNextTurnMilliseconds = gameBoard.timeUntilNextTurnMilliseconds;
+
+                ctx.fillStyle = "lightgreen";
+                for (i = 0; i < 20; i += 2)
+                    for (j = 0; j < 20; j += 2) {
+                        ctx.fillRect(i * rectSize, j * rectSize, rectSize, rectSize);
+                        ctx.fillRect((i + 1) * rectSize, (j + 1) * rectSize, rectSize, rectSize);
+                    }
+            }
+        });
+    }
+
+    function DrawSnake() {
+        $.ajax({
+            url: '/api/snake',
+            type: 'GET',
+            contentType: "application/json",
+            success: function (snakeJson) {
+
+                //очистка старой змейки
+                if (snakeObj != null) {
+                    for (i = 0; i < snakeObj.snake.length; i++) {
+                        if ((snakeObj.snake[i].x + snakeObj.snake[i].y) % 2 == 0) {
+                            ctx.fillStyle = "lightgreen";
+                            ctx.fillRect(snakeObj.snake[i].x * rectSize, snakeObj.snake[i].y * rectSize, rectSize, rectSize);
+                        }
+                        else
+                            ctx.clearRect(snakeObj.snake[i].x * rectSize, snakeObj.snake[i].y * rectSize, rectSize, rectSize);
+                    }
+                }
+
+                snakeObj = snakeJson;
+
+                ctx.fillStyle = "green";
+                for (i = 0; i < snakeJson.snake.length; i++) {
+                    ctx.fillRect(snakeJson.snake[i].x * rectSize, snakeJson.snake[i].y * rectSize, rectSize, rectSize);
+                }
+            }
+        });
+    }
+
+    function DrawFood() {
+        $.ajax({
+            url: '/api/food',
+            type: 'GET',
+            contentType: "application/json",
+            success: function (foodJson) {
+
+                if (foodPoint != null) {
+                    if ((foodPoint.x + foodPoint.y) % 2 == 0) {
+                        ctx.fillStyle = "lightgreen";
+                        ctx.fillRect(foodPoint.x * rectSize, foodPoint.y * rectSize, rectSize, rectSize);
+                    }
+                    else
+                        ctx.clearRect(foodPoint.x * rectSize, foodPoint.y * rectSize, rectSize, rectSize);
+                }
+
+                foodPoint = foodJson.food[0];
+
+                ctx.fillStyle = "red";
+                for (i = 0; i < foodJson.food.length; i++) {
+                    ctx.fillRect(foodJson.food[i].x * rectSize, foodJson.food[i].y * rectSize, rectSize, rectSize);
+                }
+            }
+        });
+    }
+
+    function DrawItems() {
+        DrawFood();
+        DrawSnake();
+    }
+
+    function changeDirectionQuery(dir) {
+        $.ajax({
+            url: "api/direction",
+            contentType: "application/json",
+            method: "POST",
+            data: JSON.stringify({
+                direction: dir,
+            })
+        });
+    }
+
+    function changeDirection(e) {
+        switch (e.keyCode) {
+            case 37:  // если нажата клавиша влево
+                changeDirectionQuery("Left");
+                break;
+            case 38:   // если нажата клавиша вверх
+                changeDirectionQuery("Top");
+                break;
+            case 39:   // если нажата клавиша вправо
+                changeDirectionQuery("Right");
+                break;
+            case 40:   // если нажата клавиша вниз
+                changeDirectionQuery("Bottom");
+                break;
+        }
+    }
+
+    addEventListener("keydown", changeDirection);
+
+    DrawGameBoard();
+
+    setInterval(DrawItems, 300);
+</script>

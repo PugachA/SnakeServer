@@ -1,8 +1,8 @@
 {
   "timeUntilNextTurnMilliseconds": 600,
-  "initialSnakeLength": 3,
+  "initialSnakeLength": 2,
   "gameBoardSize": {
     "width": 20,
-    "heigth": 20
+    "height": 20
   }
 }

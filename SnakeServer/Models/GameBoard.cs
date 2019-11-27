@@ -23,10 +23,25 @@ namespace SnakeServer.Models
             this.GameBoardSize = gameBoardSize;
         }
 
+        /// <summary>
+        /// Номер шага змейки
+        /// </summary>
         public int TurnNumber { get; set; }
+
+        /// <summary>
+        /// Период совершения шага
+        /// </summary>
         public int TimeUntilNextTurnMilliseconds { get; set; }
+
+        /// <summary>
+        /// Начальная длина змейки
+        /// </summary>
         [JsonIgnore]
         public int InitialSnakeLength { get; set; }
+
+        /// <summary>
+        /// Размеры доски
+        /// </summary>
         public Size GameBoardSize { get; set; }
     }
 }

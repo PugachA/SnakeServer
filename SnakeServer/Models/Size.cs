@@ -5,6 +5,6 @@ namespace SnakeServer.Models
     {
         public int Width { get; set; }
 
-        public int Heigth { get; set; }
+        public int Height { get; set; }
     }
 }
