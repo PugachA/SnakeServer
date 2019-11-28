@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SnakeServer.Controllers;
@@ -17,19 +18,22 @@ namespace SnakeServer.Tests.UnitTests
         public void GetGameboard_ReturnsCorrectResult()
         {
             //Arrange
-            GameManagerService mock = Mock.Of<GameManagerService>(g => g.GetGameBoard() == new GameBoard
-            {
-                TurnNumber = 0,
-                TimeUntilNextTurnMilliseconds = 600,
-                GameBoardSize = new Size { Width = 20, Height = 20 },
-                InitialSnakeLength = 2
-            });
+            var mockService = new Mock<GameManagerService>();
+            mockService.Setup(service => service.Game.GetGameBoard()).Returns(
+                new GameBoard
+                {
+                    TurnNumber = 0,
+                    TimeUntilNextTurnMilliseconds = 600,
+                    GameBoardSize = new Size { Width = 20, Height = 20 },
+                    InitialSnakeLength = 2
+                });
+            var mockLogger = new Mock<ILogger<GameBoardController>>();
 
-            //var controller = new GameBoardController(mock, )
+            var controller = new GameBoardController(mockService.Object, mockLogger.Object);
 
-            //var viewResult = Assert.IsType<ViewResult>(result)
-
-            Assert.Pass();
+            var result = controller.GetGameboard();
+            Assert.IsInstanceOf<GameBoard>(result);
+            //Assert.Pass();
         }
 
         private GameBoard GetTestGameBoard()
