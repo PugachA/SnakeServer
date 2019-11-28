@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SnakeServer.Core.Interfaces;
 using SnakeServer.Core.Models;
 using System;
 using System.Collections.Generic;
@@ -11,24 +12,27 @@ namespace SnakeServer.Services
     {
         private readonly ILogger<GameManagerService> _logger;
         private Timer _timer;
-        public GameManager Game { get; private set; }
+        public IGameManager Game { get; private set; }
         public GameManagerService(ILogger<GameManagerService> logger)
         {
             _logger = logger;
         }
 
+        /// <summary>
+        /// Инициализация и запуск игры по таймеру
+        /// </summary>
         public void Start()
         {
             try
             {
-                _logger.LogInformation($"Запущен {nameof(GameManagerService)}");
+                _logger.LogInformation($"Запущен сервис игры {nameof(GameManagerService)}");
 
                 //Вытягивание настроек из конфига
                 IConfiguration appConfiguration = new ConfigurationBuilder().AddJsonFile("gameboardsettigs.json").Build();
                 GameBoard gameBoard = new GameBoard();
                 appConfiguration.Bind(gameBoard);
 
-                //Добавление змейки в центр поля
+                //Добавление змейку в центр поля
                 Point middlePoint = new Point(gameBoard.GameBoardSize.Width / 2, gameBoard.GameBoardSize.Height / 2);
                 Snake snake = new Snake(middlePoint, gameBoard.InitialSnakeLength);
 
@@ -55,13 +59,20 @@ namespace SnakeServer.Services
             }
         }
 
+        /// <summary>
+        /// Остановка сервиса игры
+        /// </summary>
         public void Stop()
         {
-            _logger.LogInformation($"Остановлен {nameof(GameManagerService)}");
+            _logger.LogInformation($"Остановлен сервис игры {nameof(GameManagerService)}");
 
             _timer?.Change(Timeout.Infinite, 0);
         }
 
+        /// <summary>
+        /// Обработка шага в игры
+        /// </summary>
+        /// <param name="state"></param>
         private void DoWork(object state)
         {
             try
@@ -70,6 +81,7 @@ namespace SnakeServer.Services
 
                 if (this.Game.IsGameOver)
                 {
+                    //Перезапуск игры
                     this.Stop();
                     this.Start();
                 }

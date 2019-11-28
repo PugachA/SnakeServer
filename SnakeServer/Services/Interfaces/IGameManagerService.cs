@@ -1,10 +1,11 @@
-﻿using SnakeServer.Core.Models;
+﻿using SnakeServer.Core.Interfaces;
+using SnakeServer.Core.Models;
 
 namespace SnakeServer.Services
 {
     public interface IGameService
     {
-        GameManager Game { get; }
+        IGameManager Game { get; }
         void Start();
         void Stop();
     }

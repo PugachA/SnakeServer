@@ -20,11 +20,11 @@ namespace SnakeServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSingleton<GameManagerService>();
+            services.AddSingleton<IGameService, GameManagerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, GameManagerService gameService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IGameService gameService)
         {
             if (env.IsDevelopment())
             {

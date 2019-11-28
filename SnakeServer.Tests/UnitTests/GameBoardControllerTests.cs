@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SnakeServer.Controllers;
+using SnakeServer.Core.Interfaces;
 using SnakeServer.Core.Models;
 using SnakeServer.Services;
 
@@ -15,25 +17,26 @@ namespace SnakeServer.Tests.UnitTests
         }
 
         [Test]
-        public void GetGameboard_ReturnsCorrectResult()
+        public void GetGameboard_ReturnsOkWithData()
         {
             //Arrange
-            var mockService = new Mock<GameManagerService>();
-            mockService.Setup(service => service.Game.GetGameBoard()).Returns(
-                new GameBoard
-                {
-                    TurnNumber = 0,
-                    TimeUntilNextTurnMilliseconds = 600,
-                    GameBoardSize = new Size { Width = 20, Height = 20 },
-                    InitialSnakeLength = 2
-                });
+            var mockGame = new Mock<IGameManager>();
+            mockGame.Setup(g => g.GetGameBoard()).Returns(GetTestGameBoard());
+
+            var mockService = new Mock<IGameService>();
+            mockService.Setup(service => service.Game).Returns(mockGame.Object);
+
             var mockLogger = new Mock<ILogger<GameBoardController>>();
 
             var controller = new GameBoardController(mockService.Object, mockLogger.Object);
 
+            //Act
             var result = controller.GetGameboard();
-            Assert.IsInstanceOf<GameBoard>(result);
-            //Assert.Pass();
+            
+            //Assert
+            OkObjectResult okObjectResult = result as OkObjectResult;
+            Assert.IsInstanceOf<OkObjectResult>(okObjectResult);
+            Assert.IsInstanceOf<GameBoard>(okObjectResult.Value);
         }
 
         private GameBoard GetTestGameBoard()
