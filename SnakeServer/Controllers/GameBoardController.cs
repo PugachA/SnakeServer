@@ -10,12 +10,12 @@ namespace SnakeServer.Controllers
     [Route("api")]
     public class GameBoardController : Controller
     {
-        private readonly GameManagerService gameManager;
+        private readonly GameManagerService gameService;
         private readonly ILogger<GameBoardController> logger;
 
         public GameBoardController(GameManagerService gameManager, ILogger<GameBoardController> logger)
         {
-            this.gameManager = gameManager;
+            this.gameService = gameManager;
             this.logger = logger;
         }
 
@@ -27,7 +27,7 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                GameBoard gameBoard = this.gameManager.GetGameBoard();
+                GameBoard gameBoard = this.gameService.Game.GetGameBoard();
                 this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameBoard)}");
                 return Ok(gameBoard);
             }
@@ -46,7 +46,7 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                Snake snake = this.gameManager.GetSnake();
+                Snake snake = this.gameService.Game.GetSnake();
                 this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(snake)}");
                 return Ok(snake);
             }
@@ -65,7 +65,7 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                Food food = this.gameManager.GetFood();
+                Food food = this.gameService.Game.GetFood();
                 this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(food)}");
                 return Ok(food);
             }
@@ -85,7 +85,7 @@ namespace SnakeServer.Controllers
             try
             {
                 this.logger.LogInformation($"Поступил запрос {JsonSerializer.Serialize(newDirection)}");
-                this.gameManager.UpdateDirection(newDirection.Direction);
+                this.gameService.Game.UpdateDirection(newDirection.Direction);
                 return Ok();
             }
             catch(Exception ex)

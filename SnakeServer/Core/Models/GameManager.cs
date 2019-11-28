@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SnakeServer.Core.Interfaces;
 using SnakeServer.Services;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SnakeServer.Core.Models
 {
-    public class GameManager
+    public class GameManager : IGameManager
     {
         /// <summary>
         /// Очередь направлений
@@ -19,8 +20,8 @@ namespace SnakeServer.Core.Models
         private Snake snake;
         private Food food;
         private GameBoard gameBoard;
-        private readonly ILogger<GameManager> logger;
-        public bool IsGameOver;
+        private readonly ILogger logger;
+        public bool IsGameOver { get; private set; }
 
         public GameManager(Snake snake, Food food, GameBoard gameBoard, Direction initSnakeDirection, ILogger logger)
         {
@@ -40,7 +41,7 @@ namespace SnakeServer.Core.Models
             this.snake = snake;
             this.food = food;
             this.gameBoard = gameBoard;
-            
+
             this.snakeDirectionQueue = new Queue<Direction>();
             this.snakeDirectionQueue.Enqueue(initSnakeDirection);
 
