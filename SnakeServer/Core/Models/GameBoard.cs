@@ -8,7 +8,6 @@ namespace SnakeServer.Core.Models
         public GameBoard()
         {
             this.GameBoardSize = new Size();
-            this.InitialSnakeLength = 2;
         }
 
         public GameBoard(int turnNumber, int timeUntilNextTurnMilliseconds, Size gameBoardSize, int initialSnakeLength = 2)
