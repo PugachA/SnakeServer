@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace SnakeServer.Core.Models
     /// </summary>
     public class DirectionObject
     {
+        [Required(ErrorMessage = "Укажите направление")]
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Direction Direction { get; set; }
     }

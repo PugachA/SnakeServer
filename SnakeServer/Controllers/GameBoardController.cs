@@ -85,8 +85,8 @@ namespace SnakeServer.Controllers
         {
             try
             {
-                if(newDirection is null)
-                    return BadRequest($"Неверный формат запроса.");
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
                 this.logger.LogInformation($"Поступил запрос {JsonSerializer.Serialize(newDirection)}");
                 this.gameService.Game.UpdateDirection(newDirection.Direction);
