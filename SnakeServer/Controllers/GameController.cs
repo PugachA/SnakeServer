@@ -8,12 +8,12 @@ using SnakeServer.Services;
 namespace SnakeServer.Controllers
 {
     [Route("api")]
-    public class GameBoardController : Controller
+    public class GameController : Controller
     {
         private readonly IGameService gameService;
-        private readonly ILogger<GameBoardController> logger;
+        private readonly ILogger<GameController> logger;
 
-        public GameBoardController(IGameService gameManager, ILogger<GameBoardController> logger)
+        public GameController(IGameService gameManager, ILogger<GameController> logger)
         {
             this.gameService = gameManager;
             this.logger = logger;

@@ -18,9 +18,6 @@ namespace SnakeServer.Services
             _logger = logger;
         }
 
-        /// <summary>
-        /// Инициализация и запуск игры по таймеру
-        /// </summary>
         public void Start()
         {
             try
@@ -59,9 +56,6 @@ namespace SnakeServer.Services
             }
         }
 
-        /// <summary>
-        /// Остановка сервиса игры
-        /// </summary>
         public void Stop()
         {
             _logger.LogInformation($"Остановлен сервис игры {nameof(GameManagerService)}");

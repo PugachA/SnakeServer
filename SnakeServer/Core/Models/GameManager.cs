@@ -42,9 +42,6 @@ namespace SnakeServer.Core.Models
             this._snakeDirectionQueue.Enqueue(initSnakeDirection);
         }
 
-        /// <summary>
-        /// Совершение шага в игре
-        /// </summary>
         public void NextTurn()
         {
             try
@@ -96,10 +93,6 @@ namespace SnakeServer.Core.Models
             }
         }
 
-        /// <summary>
-        /// Добавление в очередь нового направления
-        /// </summary>
-        /// <param name="newDirection"></param>
         public void UpdateDirection(Direction newDirection)
         {
             //Последнее направление
@@ -135,28 +128,16 @@ namespace SnakeServer.Core.Models
             }
         }
 
-        /// <summary>
-        /// Получение состояния змейки
-        /// </summary>
-        /// <returns></returns>
         public Snake GetSnake()
         {
             return new Snake(this._snake.Points);
         }
 
-        /// <summary>
-        /// Получение точек еды на поле
-        /// </summary>
-        /// <returns></returns>
         public Food GetFood()
         {
             return new Food(this._food.Points);
         }
 
-        /// <summary>
-        /// Получение настроек игрового поля
-        /// </summary>
-        /// <returns></returns>
         public GameBoard GetGameBoard()
         {
             return new GameBoard(this._gameBoard.TurnNumber, this._gameBoard.TimeUntilNextTurnMilliseconds, this._gameBoard.GameBoardSize);
