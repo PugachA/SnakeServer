@@ -84,11 +84,12 @@ namespace SnakeServer.Tests.UnitTests
             //Act
             var result = controller.GetGameboard();
             var gameBoard = GetTestGameBoard();
-            OkObjectResult okObjectResult = result as OkObjectResult;
-            GameBoard value = okObjectResult.Value as GameBoard;
 
             //Assert
+            OkObjectResult okObjectResult = result as OkObjectResult;
             Assert.NotNull(okObjectResult);
+
+            GameBoard value = okObjectResult.Value as GameBoard;
             Assert.NotNull(value);
 
             Assert.AreEqual(gameBoard.TurnNumber, value.TurnNumber);
@@ -107,11 +108,12 @@ namespace SnakeServer.Tests.UnitTests
             //Act
             var result = controller.GetSnake();
             var snake = GetTestSnake();
-            OkObjectResult okObjectResult = result as OkObjectResult;
-            Snake value = okObjectResult.Value as Snake;
 
             //Assert
+            OkObjectResult okObjectResult = result as OkObjectResult;
             Assert.NotNull(okObjectResult);
+
+            Snake value = okObjectResult.Value as Snake;
             Assert.NotNull(value);
 
             Assert.AreEqual(snake.Points.Count(), value.Points.Count());
@@ -132,17 +134,64 @@ namespace SnakeServer.Tests.UnitTests
             //Act
             var result = controller.GetFood();
             var food = GetTestFood();
-            OkObjectResult okObjectResult = result as OkObjectResult;
-            Food value = okObjectResult.Value as Food;
 
             //Assert
+            OkObjectResult okObjectResult = result as OkObjectResult;
             Assert.NotNull(okObjectResult);
+
+            Food value = okObjectResult.Value as Food;
             Assert.NotNull(value);
 
             Assert.AreEqual(food.Points.Count(), value.Points.Count());
 
             for (int i = 0; i < food.Points.Count(); i++)
                 Assert.AreEqual(food.Points.ElementAt(i), value.Points.ElementAt(i));
+        }
+
+        [Test]
+        public void PostDirection_ReturnsBadRequest_WhenModelInvalid()
+        {
+            //Arrange
+            var controller = new GameController(this.mockService.Object, this.mockLogger.Object);
+            controller.ModelState.AddModelError("Direction", "Required");
+            DirectionObject directionObject = new DirectionObject();
+
+            //Act
+            var result = controller.PostDirection(directionObject);
+            var badRequestObject = result as BadRequestObjectResult;
+
+            //Assert
+            Assert.NotNull(badRequestObject);
+        }
+
+        [Test]
+        public void PostDirection_ReturnsOkResult_WhenModelValid()
+        {
+            //Arrange
+            var controller = new GameController(this.mockService.Object, this.mockLogger.Object);
+            DirectionObject directionObject = new DirectionObject();
+
+            //Act
+            var result = controller.PostDirection(directionObject);
+            var okObject = result as OkResult;
+
+            //Assert
+            Assert.NotNull(okObject);
+        }
+
+        public void PostDirection_Returns500StatusCode_WhenException()
+        {
+            //Arrange
+            var controller = new GameController(null, null);
+            DirectionObject directionObject = new DirectionObject();
+
+            //Act
+            var result = controller.PostDirection(directionObject);
+            var okObject = result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(okObject);
+            Assert.AreEqual(500, okObject.StatusCode);
         }
 
         private static IEnumerable<(Type type, Func<GameController, object> getResult)> FuncTestCases
