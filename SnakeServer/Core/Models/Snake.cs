@@ -45,6 +45,7 @@ namespace SnakeServer.Core.Models
         {
             _points = new List<Point>();
 
+            //TODO: Проверить length
             for (int i = length - 1; i >= 0; i--)
                 _points.Add(new Point(point.X, point.Y + i));
 

@@ -11,11 +11,6 @@ namespace SnakeServer.Core.Models
         /// Точки, где располагается еда на доске
         /// </summary>
         private readonly List<Point> _points;
-        
-        /// <summary>
-        /// Объект для генерации случайным образом точек 
-        /// </summary>
-        private readonly Random random;
 
         /// <summary>
         /// Свойство, инкапсулиющее количество точек  
@@ -26,16 +21,14 @@ namespace SnakeServer.Core.Models
         public Food()
         {
             this._points = new List<Point>();
-            this.random = new Random();
         }
 
         public Food(IEnumerable<Point> points)
         {
-            if(points == null)
+            if (points == null)
                 throw new NullReferenceException($"Значение '{nameof(points)}' должно быть определено");
 
             this._points = new List<Point>(points);
-            this.random = new Random();
         }
 
         /// <summary>
@@ -45,19 +38,43 @@ namespace SnakeServer.Core.Models
         /// <param name="boardSize">Размер доски</param>
         public void GenerateFood(IEnumerable<Point> snakePoints, Size boardSize)
         {
-            int count = 0;
             Point newFood;
+
+            Random random = new Random();
+            List<Point> allPoints = GetAllBoardPoints(boardSize);
 
             do
             {
-                newFood = new Point(this.random.Next(0, boardSize.Width - 1), this.random.Next(0, boardSize.Height - 1));
-                count++;
-            } while (snakePoints.Contains(newFood) || count > boardSize.Height * boardSize.Width);
+                if (!allPoints.Any())
+                {
+                    newFood = null;
+                    break;
+                }
+
+                int index = random.Next(0, allPoints.Count);
+                newFood = allPoints[index];
+                allPoints.RemoveAt(index);
+            } while (snakePoints.Contains(newFood) || this._points.Contains(newFood)); //точка не должна пересекаться с змейкой и старыми точками 
 
             if (newFood == null)
                 throw new NullReferenceException("Не удалось сгенерировать новую точку для еды");
 
             _points.Add(newFood);
+        }
+
+        /// <summary>
+        /// Генерирует все точки поля
+        /// </summary>
+        /// <param name="boardSize">Размеры поля</param>
+        /// <returns>Все точки поля</returns>
+        private List<Point> GetAllBoardPoints(Size boardSize)
+        {
+            List<Point> points = new List<Point>();
+            for (int i = 0; i < boardSize.Height; i++)
+                for (int j = 0; j < boardSize.Width; j++)
+                    points.Add(new Point(j, i));
+
+            return points;
         }
 
         /// <summary>
