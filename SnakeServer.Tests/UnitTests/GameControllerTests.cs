@@ -42,7 +42,6 @@ namespace SnakeServer.Tests.UnitTests
             mockService.Setup(service => service.Game).Returns(this.mockGame.Object);
 
             this.mockLogger = new Mock<ILogger<GameController>>();
-
         }
 
         [TestCaseSource(nameof(FuncTestCases))]
@@ -192,6 +191,23 @@ namespace SnakeServer.Tests.UnitTests
             //Assert
             Assert.NotNull(okObject);
             Assert.AreEqual(500, okObject.StatusCode);
+        }
+
+        [Test]
+        public void PostDirection_UpdateDirection()
+        {
+            //Arrange
+            mockGame.Setup(g => g.UpdateDirection(Direction.Right)).Verifiable();
+            var controller = new GameController(mockService.Object, mockLogger.Object);
+            DirectionObject directionObject = new DirectionObject { Direction = Direction.Right};
+
+            //Act
+            var result = controller.PostDirection(directionObject);
+            var okObject = result as OkResult;
+
+            //Assert
+            Assert.NotNull(okObject);
+            mockGame.Verify();
         }
 
         private static IEnumerable<(Type type, Func<GameController, object> getResult)> FuncTestCases

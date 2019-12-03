@@ -55,7 +55,7 @@ namespace SnakeServer.Core.Models
             } while (snakePoints.Contains(newFood) || count > boardSize.Height * boardSize.Width);
 
             if (newFood == null)
-                throw new AggregateException("Не удалось сгенерировать новую точку для еды");
+                throw new NullReferenceException("Не удалось сгенерировать новую точку для еды");
 
             _points.Add(newFood);
         }
