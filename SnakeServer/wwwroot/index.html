@@ -25,89 +25,74 @@
     const ctx = canvas.getContext("2d");
     const rectSize = 25;
     var snakeObj;
-    var foodPoint;
-    //var timeUntilNextTurnMilliseconds;
+    var foodObj;
+    var gameBoard;
 
     // Отрисовка игрового поля
-    function DrawGameBoard() {
+    function Draw() {
         $.ajax({
             url: '/api/gameboard',
             type: 'GET',
             contentType: "application/json",
-            success: function (gameBoard) {
-                canvas.width = gameBoard.gameBoardSize.width * rectSize;
-                canvas.height = gameBoard.gameBoardSize.height * rectSize;
+            success: function (gameBoardDto) {
+                //очистка старой еды
+                clearCanvas(foodObj);
+                foodObj = gameBoardDto.food;
 
-                //timeUntilNextTurnMilliseconds = gameBoard.timeUntilNextTurnMilliseconds;
-
-                ctx.fillStyle = "lightgreen";
-                for (i = 0; i < 20; i += 2)
-                    for (j = 0; j < 20; j += 2) {
-                        ctx.fillRect(i * rectSize, j * rectSize, rectSize, rectSize);
-                        ctx.fillRect((i + 1) * rectSize, (j + 1) * rectSize, rectSize, rectSize);
-                    }
-            }
-        });
-    }
-
-    function DrawSnake() {
-        $.ajax({
-            url: '/api/snake',
-            type: 'GET',
-            contentType: "application/json",
-            success: function (snakeJson) {
+                //отрисовка еды
+                ctx.fillStyle = "red";
+                for (i = 0; i < gameBoardDto.food.length; i++) {
+                    ctx.fillRect(gameBoardDto.food[i].x * rectSize, gameBoardDto.food[i].y * rectSize, rectSize, rectSize);
+                }
 
                 //очистка старой змейки
-                if (snakeObj != null) {
-                    for (i = 0; i < snakeObj.snake.length; i++) {
-                        if ((snakeObj.snake[i].x + snakeObj.snake[i].y) % 2 == 0) {
-                            ctx.fillStyle = "lightgreen";
-                            ctx.fillRect(snakeObj.snake[i].x * rectSize, snakeObj.snake[i].y * rectSize, rectSize, rectSize);
-                        }
-                        else
-                            ctx.clearRect(snakeObj.snake[i].x * rectSize, snakeObj.snake[i].y * rectSize, rectSize, rectSize);
-                    }
-                }
+                clearCanvas(snakeObj);
+                snakeObj = gameBoardDto.snake;
 
-                snakeObj = snakeJson;
-
+                //отрисовка змейки
                 ctx.fillStyle = "green";
-                for (i = 0; i < snakeJson.snake.length; i++) {
-                    ctx.fillRect(snakeJson.snake[i].x * rectSize, snakeJson.snake[i].y * rectSize, rectSize, rectSize);
+                for (i = 0; i < snakeObj.length; i++) {
+                    ctx.fillRect(snakeObj[i].x * rectSize, snakeObj[i].y * rectSize, rectSize, rectSize);
                 }
             }
         });
     }
 
-    function DrawFood() {
+    function drawGameBoard() {
         $.ajax({
-            url: '/api/food',
+            url: '/api/gameboard',
             type: 'GET',
             contentType: "application/json",
-            success: function (foodJson) {
+            success: function (gameBoardDto) {
 
-                if (foodPoint != null) {
-                    if ((foodPoint.x + foodPoint.y) % 2 == 0) {
-                        ctx.fillStyle = "lightgreen";
-                        ctx.fillRect(foodPoint.x * rectSize, foodPoint.y * rectSize, rectSize, rectSize);
-                    }
-                    else
-                        ctx.clearRect(foodPoint.x * rectSize, foodPoint.y * rectSize, rectSize, rectSize);
-                }
+                // Отрисовка игрового поля
+                if (gameBoard == null) {
+                    canvas.width = gameBoardDto.gameBoardSize.width * rectSize;
+                    canvas.height = gameBoardDto.gameBoardSize.height * rectSize;
 
-                foodPoint = foodJson.food[0];
-
-                ctx.fillStyle = "red";
-                for (i = 0; i < foodJson.food.length; i++) {
-                    ctx.fillRect(foodJson.food[i].x * rectSize, foodJson.food[i].y * rectSize, rectSize, rectSize);
+                    ctx.fillStyle = "lightgreen";
+                    for (i = 0; i < 20; i += 2)
+                        for (j = 0; j < 20; j += 2) {
+                            ctx.fillRect(i * rectSize, j * rectSize, rectSize, rectSize);
+                            ctx.fillRect((i + 1) * rectSize, (j + 1) * rectSize, rectSize, rectSize);
+                        }
+                    gameBoard = gameBoardDto;
                 }
             }
         });
     }
 
-    function DrawItems() {
-        DrawFood();
-        DrawSnake();
+    function clearCanvas(obj) {
+        if (obj != null) {
+            for (i = 0; i < obj.length; i++) {
+                if ((obj[i].x + obj[i].y) % 2 == 0) {
+                    ctx.fillStyle = "lightgreen";
+                    ctx.fillRect(obj[i].x * rectSize, obj[i].y * rectSize, rectSize, rectSize);
+                }
+                else
+                    ctx.clearRect(obj[i].x * rectSize, obj[i].y * rectSize, rectSize, rectSize);
+            }
+        }
     }
 
     function changeDirectionQuery(dir) {
@@ -140,7 +125,7 @@
 
     addEventListener("keydown", changeDirection);
 
-    DrawGameBoard();
+    drawGameBoard();
 
-    setInterval(DrawItems, 400);
+    setInterval(Draw, 300);
 </script>

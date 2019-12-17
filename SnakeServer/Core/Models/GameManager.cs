@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SnakeServer.Core.Interfaces;
+using SnakeServer.Core.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,33 +14,40 @@ namespace SnakeServer.Core.Models
         /// Очередь направлений
         /// </summary>
         private readonly Queue<Direction> _snakeDirectionQueue;
-        private readonly Snake _snake;
+        private readonly ISnake _snake;
         private readonly Food _food;
-        private readonly GameBoard _gameBoard;
+        private readonly GameBoardSettings _gameBoardSettings;
         private readonly ILogger _logger;
-        public bool IsGameOver { get; private set; }
 
-        public GameManager(Snake snake, Food food, GameBoard gameBoard, Direction initSnakeDirection, ILogger logger)
+        public bool IsGameOver { get; private set; }
+        public int TurnNumber { get; private set; }
+        public IEnumerable<Point> Snake { get; private set; }
+        public IEnumerable<Point> Food => _food.Points;
+        public GameBoardSettings GameBoardSettings => new GameBoardSettings(_gameBoardSettings);
+
+        public GameManager(ISnake snake, Food food, GameBoardSettings gameBoardSettings, Direction initSnakeDirection, ILogger logger)
         {
             if (logger is null)
-                throw new NullReferenceException($"Объект {nameof(logger)} не может иметь значение null и должен быть определен");
+                throw new ArgumentNullException($"Объект {nameof(logger)} не может иметь значение null и должен быть определен");
 
             if (snake is null)
-                throw new NullReferenceException($"Объект {nameof(snake)} не может иметь значение null и должен быть определен");
+                throw new ArgumentNullException($"Объект {nameof(snake)} не может иметь значение null и должен быть определен");
 
             if (food is null)
-                throw new NullReferenceException($"Объект {nameof(food)} не может иметь значение null и должен быть определен");
+                throw new ArgumentNullException($"Объект {nameof(food)} не может иметь значение null и должен быть определен");
 
-            if (gameBoard is null)
-                throw new NullReferenceException($"Объект {nameof(gameBoard)} не может иметь значение null и должен быть определен");
+            if (gameBoardSettings is null)
+                throw new ArgumentNullException($"Объект {nameof(gameBoardSettings)} не может иметь значение null и должен быть определен");
 
-            this._logger = logger;
             this._snake = snake;
+            this.Snake = snake.Points;
+            
             this._food = food;
-            this._gameBoard = gameBoard;
+            this._gameBoardSettings = gameBoardSettings;
 
             this._snakeDirectionQueue = new Queue<Direction>();
             this._snakeDirectionQueue.Enqueue(initSnakeDirection);
+            this._logger = logger;
         }
 
         public void NextTurn()
@@ -49,25 +57,24 @@ namespace SnakeServer.Core.Models
                 if (this.IsGameOver)
                     return;
 
-                //Если очередь пустая, двигайся в старом направлении
+                //Если очередь пустая, двигайся в старом направлении 
                 if (this._snakeDirectionQueue.Any())
                     this._snake.Move(this._snakeDirectionQueue.Dequeue());
                 else
                     this._snake.Move(this._snake.Direction);
 
-                this._gameBoard.TurnNumber++;
+                this.TurnNumber++;
 
                 //Попадание в стенки
                 if (
                     (this._snake.Head.Y == -1)
                     || (this._snake.Head.X == -1)
-                    || (this._snake.Head.Y == this._gameBoard.GameBoardSize.Height)
-                    || (this._snake.Head.X == this._gameBoard.GameBoardSize.Width)
+                    || (this._snake.Head.Y == this._gameBoardSettings.GameBoardSize.Height)
+                    || (this._snake.Head.X == this._gameBoardSettings.GameBoardSize.Width)
                     )
                 {
                     _logger.LogInformation("Проигрыш. Змейка врезалась в стенки");
                     this.IsGameOver = true;
-                    return;
                 }
 
                 //Змейка съела сама себя
@@ -75,7 +82,6 @@ namespace SnakeServer.Core.Models
                 {
                     _logger.LogInformation("Проигрыш. Змейка съела сама себя");
                     this.IsGameOver = true;
-                    return;
                 }
 
                 //Змейка ест вкусняшку
@@ -84,8 +90,11 @@ namespace SnakeServer.Core.Models
                     _logger.LogInformation($"Змейка сьела {JsonSerializer.Serialize(this._snake.Head)}");
                     this._snake.Eat();
                     this._food.DeleteFood(this._snake.Head);
-                    this._food.GenerateFood(this._snake.Points, this._gameBoard.GameBoardSize);
+                    this._food.GenerateFood(this._snake.Points, this._gameBoardSettings.GameBoardSize);
                 }
+
+                if (!IsGameOver)
+                    this.Snake = new List<Point>(this._snake.Points);
             }
             catch (Exception ex)
             {
@@ -126,21 +135,6 @@ namespace SnakeServer.Core.Models
                         break;
                     }
             }
-        }
-
-        public Snake GetSnake()
-        {
-            return new Snake(this._snake.Points);
-        }
-
-        public Food GetFood()
-        {
-            return new Food(this._food.Points);
-        }
-
-        public GameBoard GetGameBoard()
-        {
-            return new GameBoard(this._gameBoard.TurnNumber, this._gameBoard.TimeUntilNextTurnMilliseconds, this._gameBoard.GameBoardSize);
         }
     }
 }

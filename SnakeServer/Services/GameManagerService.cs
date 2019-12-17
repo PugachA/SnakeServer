@@ -26,29 +26,26 @@ namespace SnakeServer.Services
 
                 //Вытягивание настроек из конфига
                 IConfiguration appConfiguration = new ConfigurationBuilder().AddJsonFile("gameboardsettigs.json").Build();
-                GameBoard gameBoard = new GameBoard();
-                appConfiguration.Bind(gameBoard);
+                GameBoardSettings gameBoardSettings = new GameBoardSettings();
+                appConfiguration.Bind(gameBoardSettings);
 
                 //Добавление змейку в центр поля
-                Point middlePoint = new Point(gameBoard.GameBoardSize.Width / 2, gameBoard.GameBoardSize.Height / 2);
-                Snake snake = new Snake(middlePoint, gameBoard.InitialSnakeLength);
+                Point middlePoint = new Point(gameBoardSettings.GameBoardSize.Width / 2, gameBoardSettings.GameBoardSize.Height / 2);
+                Snake snake = new Snake(middlePoint, gameBoardSettings.InitialSnakeLength);
 
                 //Добавление еды на поле
                 Food food = new Food();
-                food.GenerateFood(snake.Points, gameBoard.GameBoardSize);
+                food.GenerateFood(snake.Points, gameBoardSettings.GameBoardSize);
 
-                //Задание начального направления
-                Queue<Direction> snakeDirectionQueue = new Queue<Direction>();
-                snakeDirectionQueue.Enqueue(Direction.Top);
-
-                this.Game = new GameManager(snake, food, gameBoard, Direction.Top, _logger);
+                //Создание игры
+                this.Game = new GameManager(snake, food, gameBoardSettings, Direction.Top, _logger);
 
                 //запуск таймера для совершения шагов в игре
                 this._timer = new Timer(
                     DoWork,
                     null,
-                    TimeSpan.FromMilliseconds(gameBoard.TimeUntilNextTurnMilliseconds),
-                    TimeSpan.FromMilliseconds(gameBoard.TimeUntilNextTurnMilliseconds));
+                    TimeSpan.FromMilliseconds(gameBoardSettings.TimeUntilNextTurnMilliseconds),
+                    TimeSpan.FromMilliseconds(gameBoardSettings.TimeUntilNextTurnMilliseconds));
             }
             catch (Exception ex)
             {
@@ -64,7 +61,7 @@ namespace SnakeServer.Services
         }
 
         /// <summary>
-        /// Обработка шага в игры
+        /// Обработка шага в игре
         /// </summary>
         /// <param name="state"></param>
         private void DoWork(object state)

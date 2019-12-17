@@ -1,4 +1,5 @@
 ﻿using SnakeServer.Core.Models;
+using System.Collections.Generic;
 
 namespace SnakeServer.Core.Interfaces
 {
@@ -8,24 +9,26 @@ namespace SnakeServer.Core.Interfaces
         /// Флаг проигрыша
         /// </summary>
         bool IsGameOver { get; }
+        
+        /// <summary>
+        /// Номер шага в игре 
+        /// </summary>
+        int TurnNumber { get; }
 
         /// <summary>
         /// Получение точек еды на поле
         /// </summary>
-        /// <returns></returns>
-        Food GetFood();
+        IEnumerable<Point> Food { get; }
 
         /// <summary>
         /// Получение настроек игрового поля
         /// </summary>
-        /// <returns></returns>
-        GameBoard GetGameBoard();
+        GameBoardSettings GameBoardSettings { get; }
 
         /// <summary>
-        /// Получение состояния змейки
+        /// Получение точек змейки
         /// </summary>
-        /// <returns></returns>
-        Snake GetSnake();
+        IEnumerable<Point> Snake { get; }
 
         /// <summary>
         /// Совершение шага в игре

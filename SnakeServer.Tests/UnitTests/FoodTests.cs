@@ -20,13 +20,13 @@ namespace SnakeServer.Tests.UnitTests
         }
 
         [Test]
-        public void Food_ShouldThrowNullReferenceException()
+        public void Food_ShouldThrowArgumentNullException()
         {
             //Arrange
             IEnumerable<Point> points = null;
 
             //Act and Assert
-            Assert.Throws<NullReferenceException>(() => new Food(points));
+            Assert.Throws<ArgumentNullException>(() => new Food(points));
         }
 
         [Test]

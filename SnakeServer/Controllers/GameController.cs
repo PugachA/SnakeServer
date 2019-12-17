@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SnakeServer.Core.Models;
+using SnakeServer.DTO;
 using SnakeServer.Services;
 
 namespace SnakeServer.Controllers
@@ -21,53 +21,23 @@ namespace SnakeServer.Controllers
 
         // GET: api/gameboard
         [HttpGet("gameboard")]
-        [ProducesResponseType(typeof(GameBoard), 200)]
+        [ProducesResponseType(typeof(GameBoardDto), 200)]
         [ProducesResponseType(500)]
         public IActionResult GetGameboard()
         {
             try
             {
-                GameBoard gameBoard = this.gameService.Game.GetGameBoard();
+                GameBoardDto gameBoard = new GameBoardDto
+                {
+                    TurnNumber = this.gameService.Game.TurnNumber,
+                    TimeUntilNextTurnMilliseconds = this.gameService.Game.GameBoardSettings.TimeUntilNextTurnMilliseconds,
+                    GameBoardSize = this.gameService.Game.GameBoardSettings.GameBoardSize,
+                    Food = this.gameService.Game.Food,
+                    Snake = this.gameService.Game.Snake
+                };
+
                 this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(gameBoard)}");
                 return Ok(gameBoard);
-            }
-            catch(Exception ex)
-            {
-                this.logger.LogError(ex, "Ошибка при обработке запроса");
-                return StatusCode(500, "Ошибка при обработке запроса");
-            }
-        }
-
-        // GET: api/snake
-        [HttpGet("snake")]
-        [ProducesResponseType(typeof(Snake), 200)]
-        [ProducesResponseType(500)]
-        public IActionResult GetSnake()
-        {
-            try
-            {
-                Snake snake = this.gameService.Game.GetSnake();
-                this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(snake)}");
-                return Ok(snake);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, "Ошибка при обработке запроса");
-                return StatusCode(500, "Ошибка при обработке запроса");
-            }
-        }
-
-        // GET: api/food
-        [HttpGet("food")]
-        [ProducesResponseType(typeof(Food), 200)]
-        [ProducesResponseType(500)]
-        public IActionResult GetFood()
-        {
-            try
-            {
-                Food food = this.gameService.Game.GetFood();
-                this.logger.LogInformation($"Отправляем ответ: {JsonSerializer.Serialize(food)}");
-                return Ok(food);
             }
             catch (Exception ex)
             {
@@ -81,7 +51,7 @@ namespace SnakeServer.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
         [ProducesResponseType(500)]
-        public IActionResult PostDirection([FromBody]DirectionObject newDirection)
+        public IActionResult PostDirection([FromBody]DirectionDto newDirection)
         {
             try
             {
@@ -92,10 +62,10 @@ namespace SnakeServer.Controllers
                 this.gameService.Game.UpdateDirection(newDirection.Direction);
                 return Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.logger.LogError(ex, "Ошибка при обработке запроса");
-                return BadRequest("Внутрення ошибка сервера");
+                return StatusCode(500, "Ошибка при обработке запроса");
             }
         }
     }

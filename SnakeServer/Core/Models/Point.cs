@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace SnakeServer.Core.Models
 {
     public class Point
     {
-        [JsonPropertyName("x")]
         public int X { get; set; }
 
-        [JsonPropertyName("y")]
         public int Y { get; set; }
 
         public Point()
@@ -50,6 +48,11 @@ namespace SnakeServer.Core.Models
         public override int GetHashCode()
         {
             return HashCode.Combine(X, Y);
+        }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this);
         }
     }
 }

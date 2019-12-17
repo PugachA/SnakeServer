@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SnakeServer.Core.Models.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Serialization;
 
 namespace SnakeServer.Core.Models
 {
-    public class Snake
+    public class Snake : ISnake
     {
         /// <summary>
         /// Точки из которых состоит змейка
@@ -17,22 +17,10 @@ namespace SnakeServer.Core.Models
         /// </summary>
         private Point lastDeletedPoint;
 
-        /// <summary>
-        /// Текущее направление змейки
-        /// </summary>
-        [JsonIgnore]
         public Direction Direction { get; private set; }
 
-        /// <summary>
-        /// Свойство для инкапсуляции точек змейки
-        /// </summary>
-        [JsonPropertyName("snake")]
         public IEnumerable<Point> Points => _points;
 
-        /// <summary>
-        /// Точка соответствующая голове змейки
-        /// </summary>
-        [JsonIgnore]
         public Point Head => _points.Last();
 
         public Snake()
@@ -41,30 +29,42 @@ namespace SnakeServer.Core.Models
             this.Direction = Direction.Top;
         }
 
-        public Snake(Point point, int length, Direction direction = Direction.Top)
+        /// <summary>
+        /// Создание змейки заданной длины относительно заданной точки
+        /// </summary>
+        /// <param name="initPoint">Начальная точка построения</param>
+        /// <param name="length">Длина змейки</param>
+        /// <param name="direction">Начальное направление движения змейки</param>
+        public Snake(Point initPoint, int length, Direction direction = Direction.Top)
         {
+            if (length < 1)
+                throw new ArgumentOutOfRangeException($"Значение {nameof(length)} не может быть меньше 1");
+
+            if (initPoint == null)
+                throw new ArgumentNullException($"Значение {nameof(initPoint)} должно быть определено");
+
             _points = new List<Point>();
 
-            //TODO: Проверить length
             for (int i = length - 1; i >= 0; i--)
-                _points.Add(new Point(point.X, point.Y + i));
+                _points.Add(new Point(initPoint.X, initPoint.Y + i));
 
             this.Direction = direction;
         }
 
+        /// <summary>
+        /// Создание змйеки заданными точками
+        /// </summary>
+        /// <param name="points">Точки для змйеки</param>
+        /// <param name="direction">Начальное направление</param>
         public Snake(IEnumerable<Point> points, Direction direction = Direction.Top)
         {
             if (points == null)
-                throw new NullReferenceException($"Значение {nameof(points)} должно быть определено");
+                throw new ArgumentNullException($"Значение {nameof(points)} должно быть определено");
 
             _points = new List<Point>(points);
             this.Direction = direction;
         }
 
-        /// <summary>
-        /// Совершение шага змейкой
-        /// </summary>
-        /// <param name="newDirection">Новое направление движения</param>
         public void Move(Direction newDirection)
         {
             //Сохраняем удаляемую точку
@@ -119,11 +119,11 @@ namespace SnakeServer.Core.Models
             }
         }
 
-        /// <summary>
-        /// Поедание змейкой еды
-        /// </summary>
         public void Eat()
         {
+            if (this.lastDeletedPoint == null)
+                throw new NullReferenceException("Поедание не может быть до совершения первого шага");
+
             //Добавляем последнюю удаленную точку к хвосту змейки
             this._points.Insert(0, this.lastDeletedPoint);
         }

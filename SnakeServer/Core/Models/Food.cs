@@ -15,7 +15,6 @@ namespace SnakeServer.Core.Models
         /// <summary>
         /// Свойство, инкапсулиющее количество точек  
         /// </summary>
-        [JsonPropertyName("food")]
         public IEnumerable<Point> Points => _points;
 
         public Food()
@@ -26,7 +25,7 @@ namespace SnakeServer.Core.Models
         public Food(IEnumerable<Point> points)
         {
             if (points == null)
-                throw new NullReferenceException($"Значение '{nameof(points)}' должно быть определено");
+                throw new ArgumentNullException($"Значение '{nameof(points)}' должно быть определено");
 
             this._points = new List<Point>(points);
         }
